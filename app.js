@@ -6,8 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var passport = require('passport');
-var expressValidator = require('express-validator');
 var LocalStrategy = require('passport-local').Strategy;
+var expressValidator = require('express-validator');
 var multer = require('multer');
 var upload = multer({dest: './uploads'});
 var flash = require('connect-flash');
@@ -30,12 +30,10 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Handle Sessions
 app.use(session({
-  secret: 'secret',
+  secret:'secret',
   saveUninitialized: true,
   resave: true
 }));
@@ -62,9 +60,17 @@ app.use(expressValidator({
   }
 }));
 
-app.use(require('connect-flash')());
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(flash());
 app.use(function (req, res, next) {
   res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
+app.get('*', function(req, res, next){
+  res.locals.user = req.user || null;
   next();
 });
 
